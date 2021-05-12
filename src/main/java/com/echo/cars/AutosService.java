@@ -1,0 +1,10 @@
+package com.echo.cars;
+
+import org.springframework.stereotype.Service;
+
+@Service
+public class AutosService {
+    public AutosList getAutos() {
+        return null;
+    }
+}
