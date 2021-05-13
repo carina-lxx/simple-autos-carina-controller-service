@@ -1,9 +1,8 @@
 package com.echo.cars;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 public class AutosController {
@@ -26,5 +25,16 @@ public class AutosController {
 
         return autosList.isEmpty() ? ResponseEntity.noContent().build() :
                 ResponseEntity.ok(autosList);
+    }
+
+    @PostMapping("/api/autos")
+    public Automobile addAuto(@RequestBody Automobile auto) {
+        return autosService.addAuto(auto);
+    }
+
+    @ExceptionHandler
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public void invalidAutoExceptionHandlr(InvalidAutoException e) {
+
     }
 }

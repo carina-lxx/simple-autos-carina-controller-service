@@ -1,18 +1,23 @@
 package com.echo.cars;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -24,6 +29,9 @@ public class AutosControllerTests {
 
     @MockBean
     AutosService autosService;
+
+    ObjectMapper mapper = new ObjectMapper();
+
     // GET: /api/autos
         // GET:  /api/autos   returns a lit of all autos
     @Test
@@ -55,9 +63,27 @@ public class AutosControllerTests {
     }
 
         // GET:  /api/autos?color=RED   returns all red cars
-        // GET:  /api/autos?make=Ford   returns all Ford
-        // GET:  /api/autos?make=Ford&color=GREEN   returns green ford
+//    @Test
+//    void getAutos_searchParmsColor_exists_returnsAutosList() throws Exception {
+//        // Arrange
+//        List<Automobile> automobiles = new ArrayList<>();
+//        for(int i = 0; i < 4; i++) {
+//           Automobile auto = new Automobile(1967+i, "Ford", "Mustang", "AABB"+i);
+//           auto.setColor("White");
+//           automobiles.add(auto);
+//        }
+//        when(autosService.getAutos(anyString(), anyString())).thenReturn(new AutosList(automobiles));
+//        // Act
+//        mockMvc.perform(get("/api/autos?color=White"))
+//        // Assert
+//                .andExpect(status().isOk())
+//                .andExpect(jsonPath("$.color", hasSize(4)));
+//    }
 
+    // GET:  /api/autos?make=Ford   returns all Ford
+
+
+        // GET:  /api/autos?make=Ford&color=GREEN   returns green ford
     @Test
     void getAutos_searchParms_exists_returnsAutosList() throws Exception {
         // Arrange
@@ -72,11 +98,33 @@ public class AutosControllerTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.automobiles", hasSize(5)));
     }
-
-
-    // POST: /api/autos
+  //Post: /api/autos
         // /api/autos  returns created automobile
+    @Test
+    void addAuto_valid_returnsAuto() throws Exception {
+        Automobile automobile = new Automobile(1967, "Ford", "Mustang", "AABBCC");
+        when(autosService.addAuto(any(Automobile.class))).thenReturn(automobile);
+        String json = "{\"year\":1967,\"make\":\"Ford\",\"model\":\"Mustang\",\"color\":null,\"owner\":null,\"vin\":\"AABBCC\"}";
+        mockMvc.perform(post("/api/autos").contentType(MediaType.APPLICATION_JSON)
+                                    .content(json))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("make").value("Ford"));
+
+    }
         // /api/autos  returns error message due to bad request 400
+
+    @Test
+    void addAuto_badRequest_returns400() throws Exception {
+        when(autosService.addAuto(any(Automobile.class))).thenThrow(InvalidAutoException.class);
+        String json = "{\"year\":1967,\"make\":\"Ford\",\"model\":\"Mustang\",\"color\":null,\"owner\":null,\"vin\":\"AABBCC\"}";
+        mockMvc.perform(post("/api/autos").contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andDo(print())
+                .andExpect(status().isBadRequest());
+
+    }
+
 
     // GET: /api/autos/{vin}
         // /api/autos/{vin} returns the requested auto
