@@ -14,8 +14,7 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -177,4 +176,11 @@ public class AutosControllerTests {
     }
 
     // /api/autos/{vin} Returns 204, vehicle not found
+
+    @Test
+    void deleteAuto_withVin_notExists_returnsNoContent() throws Exception {
+        doThrow(new AutoNotFoundException()).when(autosService).deleteAuto(anyString());
+        mockMvc.perform(delete("/api/autos/AABBCC"))
+                .andExpect(status().isNoContent());
+    }
 }
