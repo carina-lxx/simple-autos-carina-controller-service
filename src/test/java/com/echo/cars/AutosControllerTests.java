@@ -2,7 +2,6 @@ package com.echo.cars;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentMatchers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -13,8 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -128,10 +126,21 @@ public class AutosControllerTests {
 
     // GET: /api/autos/{vin}
         // /api/autos/{vin} returns the requested auto
-        // /api/autos/{vin} returns NoContent 204 auto not found
+
+    @Test
+    void getAuto_withVin_returnsAuto() throws Exception {
+        Automobile auto = new Automobile(1999, "BMW", "E36", "AABBC");
+        when(autosService.getAuto(anyString())).thenReturn(auto);
+        mockMvc.perform(get("/api/autos/" + auto.getVin()))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("vin").value(auto.getVin()));
+    }
+
+    // /api/autos/{vin} returns NoContent 204 auto not found
 
     // PATCH: /api/autos{vin}
         // /api/autos{vin} returns patched automobile
+
         // /api/autos{vin} returns NoContent auto not found
         // /api/autos{vin} returns 400 bad request (no payload, no changes, or already done)
 
