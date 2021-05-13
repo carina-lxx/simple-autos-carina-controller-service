@@ -1,6 +1,7 @@
 package com.echo.cars;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -13,6 +14,7 @@ import java.util.List;
 
 import static org.hamcrest.Matchers.hasSize;
 import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -152,9 +154,27 @@ public class AutosControllerTests {
                 
     }
         // /api/autos{vin} returns NoContent auto not found
+//        @Test
+//        @DisplayName("Should return no content 204 when vin is not found")
+//        void test_Returns204NoContentWithVinNotFound() throws Exception {
+//
+//            when(autoService.getAuto(anyInt())).thenThrow(AutoNotFoundException.class);
+//
+//            mockMvc.perform(get("/api/autos/" + "10" ))
+//                    .andExpect(status().isNoContent());
+//        }
         // /api/autos{vin} returns 400 bad request (no payload, no changes, or already done)
 
     // DELETE: /api/autos/{vin}
         // /api/autos/{vin}  Returns 202, deleted request accepted
-        // /api/autos/{vin} Returns 204, vehicle not found
+
+    @Test
+    void deleteAuto_withVin_exists_return202() throws Exception {
+
+        mockMvc.perform(delete("/api/autos/AABBCC"))
+                .andExpect(status().isAccepted());
+        verify(autosService).deleteAuto(anyString());
+    }
+
+    // /api/autos/{vin} Returns 204, vehicle not found
 }
